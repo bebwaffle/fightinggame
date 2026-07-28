@@ -1,7 +1,7 @@
 import random
 import time
 
-
+battles = 1
 class Character:
     def __init__(self, name, health, damage, defense, luck):
         self.name = name
@@ -83,6 +83,14 @@ class Priest(Character):
         return target.take_damage(int(damage))
     def heal(self):
         self.health += random.randint(5 + round(self.luck / 3), 10 + round(self.luck / 3))
+class Boss(Character):
+    def attack(self, target):
+        critical = random.randint(1, 50) <= 12
+        damage = self.damage
+        if critical:
+            damage += self.damage + 15
+
+        return target.take_damage(int(damage))
 # Arena Battle
 def arena_battle(player, enemy):
 
@@ -137,13 +145,14 @@ def arena_battle(player, enemy):
             if replay == "y":
                 enemy.max_health += random.randint(5, 8)
                 enemy.defense += random.randint(1, 3)
-                enemy.damage += random.randint(3, 5)
+                enemy.damage += random.randint(2, 4)
                 player.max_health += 5
                 player.luck += random.randint(3, 4)
                 player.reset_health()
                 enemy.reset_health()
+                global battles
+                battles += 1
                 time.sleep(0.1)
-
                 stats = input("Choose 1 stat to boost. 1 for health, 2 for damage, 3 for luck. ")
                 if stats == "1":
                     player.health += 5
@@ -186,7 +195,6 @@ def start():
         else:
             break
     return playername
-playername = start()
 def choose():
     while True:
         character = input("1 for average Joe, 2 for guy with a cool staff")
@@ -199,12 +207,58 @@ def choose():
         else:
             print("Please enter a valid option >:(")
             continue
-enemy = Rogue("Homeless Bum", 70, 10, 6, 30)
+def choose():
+    if battles % 3 == 0:
+        enemy = Boss(f"guy who hates {playername}", 200, 20, 3, 0)
+    else:
+        enemy = Rogue("Homeless Bum", 70, 10, 6, 30)
 player = choose()
 def Main(player, enemy):
-    print(f"Welcome, {player.name}, to the Beat Up Homeless People Fighting Game! ")
+    print(f"Welcome, {player.name}, to the Beat Up Homeless People Fighting Game!")
     print("")
     input("Press Enter to continue")
     arena_battle(player, enemy)
+
+
+def start():
+    while True:
+        playername = input("Enter your name: ")
+
+        if len(playername) <= 4:
+            print("Please enter a name longer than 4 characters >:(")
+            continue
+
+        elif len(playername) > 15:
+            print("Name is too long >:(")
+            continue
+
+        else:
+            return playername
+
+
+def choose_player():
+    while True:
+        character = input("1 for average Joe, 2 for guy with a cool staff: ")
+
+        if character == "1":
+            return Character(playername, 100, 20, 5, 15)
+
+        elif character == "2":
+            return Priest(playername, 80, 10, 5, 20)
+
+        else:
+            print("Please enter a valid option >:(")
+
+
+def choose_enemy():
+    if battles % 3 == 0:
+        return Boss(f"Guy who hates {playername}", 200, 20, 3, 0)
+    else:
+        return Rogue("Homeless Bum", 70, 10, 6, 30)
+
+
+playername = start()
+player = choose_player()
+enemy = choose_enemy()
 
 Main(player, enemy)
