@@ -37,12 +37,15 @@ class Character:
 
     def is_alive(self):
         return self.health > 0
+
     def heal(self):
         self.health += 5 + random.randint(2, self.luck)
+
     def reset_health(self):
         global heals
         self.health = self.max_health
         heals = 5
+
     def show_stats(self):
         print(" ")
         print(f"HP:  {self.health}")
@@ -51,7 +54,7 @@ class Character:
         print(f"Luck: {self.luck}")
         print(f"{self.info}")
         print("")
-        time.sleep(0.5)
+        time.sleep(1)
 
 class Rogue(Character):
     def attack(self, target):
@@ -65,6 +68,7 @@ class Rogue(Character):
             self.yap()
 
         return target.true_damage(int(damage))
+
     def yap(self):
         dialogue = random.randint(1, 3)
         if dialogue == 1:
@@ -80,6 +84,7 @@ class Rogue(Character):
             print("*the homeless bum makes some homeless noises*")
             print("")
 class Priest(Character):
+
     def attack(self, target):
         global heals
         damage = self.damage + (self.luck / 5)
@@ -93,6 +98,7 @@ class Priest(Character):
             print(f"the staff healed you {healed} HP because you're so lucky")
 
         return target.take_damage(int(damage))
+
     def heal(self):
         global heals
         if heals != 0:
@@ -106,6 +112,7 @@ class Priest(Character):
             if fail == 1:
                 print("you forgot how to heal.")
 class Boxer(Character):
+
     def attack(self, target):
         critical = random.randint(1, 40) <= self.defense
         damage = self.damage
@@ -116,8 +123,10 @@ class Boxer(Character):
             print("")
             print("Critical Hit!")
         return target.take_damage(int(damage))
+
     def take_damage(self, damage):
-        dodge = random.randint(1, 3) <= self.defense
+        print("works!")
+        dodge = random.randint(1, 50) <= self.defense
         if dodge:
             print("**Dodged!**")
             damage_taken = 0
@@ -127,8 +136,20 @@ class Boxer(Character):
             damage_taken = max(0, damage - self.defense) * 1.1
             self.health -= damage_taken
             return damage_taken
+    def true_damage(self, damage):
+        dodge = random.randint(1, 50) <= self.defense
+        if dodge:
+            print("**Partially Dodged!**")
+            damage_taken = max(0, damage - self.defense) * 0.5
+            self.health -= damage_taken
+            return damage_taken
+        else:
+            damage_taken = max(0, damage - self.defense) * 1.1
+            self.health -= damage_taken
+            return damage_taken
 
 class Boss(Character):
+
     def attack(self, target):
         critical = random.randint(1, 50) <= 8
         damage = self.damage
@@ -207,7 +228,7 @@ def arena_battle(player, enemy):
                 player.reset_health()
                 enemy.reset_health()
                 battles += 1
-                time.sleep(0.1)
+                time.sleep(0.5)
                 enemy = choose_enemy()
                 stats = input("Choose 1 stat to boost. 1 for health, 2 for damage, 3 for luck. ")
                 if stats == "1":
@@ -221,7 +242,7 @@ def arena_battle(player, enemy):
                     enemy.luck += 1
                 else:
                     print("No stat boost for you then >:(")
-
+                time.sleep(0.5)
                 arena_battle(player, enemy)
             if replay == "n":
                 exit()
@@ -255,7 +276,7 @@ def Main(player, enemy):
             print("The game has 2 basic actions, which are attacking and healing. Healing scales off of your luck stat, which you can view during battle.")
             print("Enemies' stats scale off of how many rounds have gone by. ")
             print("There will also be a boss every 3 rounds which is extremely strong, so you need to get really lucky to beat it. if you die you wont lose because i dont want to code that :(")
-            time.sleep(0.2)
+            time.sleep(1)
             continue
         else:
             arena_battle(player, enemy)
@@ -282,12 +303,11 @@ def choose_player():
         character = input("1 for average Joe, 2 for guy with a cool staff, 3 for lanky boxer. Press I for info about all of them. ")
 
         if character == "1":
-            return Character(playername, 100, 20, 5, 10, "a normal guy that punches")
-
+            return Character(playername, 100, 15, 5, 10, "a normal guy that punches")
         elif character == "2":
-            return Priest(playername, 80, 13, 5, 20, "a guy that heals himself better than the average guy")
+            return Priest(playername, 80, 10, 5, 20, "a guy that heals himself better than the average guy")
         elif character == "3":
-            return Boxer(playername, 85, 10, 10, 12, "A guy that punches weaker, but can also dodge.")
+            return Boxer(playername, 85, 12.3, 10, 12, "A guy that punches weaker, but can also dodge.")
         elif character == "I" or "i":
             print("Average Joe has almost nothing going for him, other than the fact he punches hard.")
             print("Bad defense and luck, but good damage and overall hp.")
@@ -297,7 +317,7 @@ def choose_player():
             time.sleep(0.2)
             print("Lanky boxer cant punch hard because he has boxing gloves on, but he can take quite a few hits.")
             print("mediocre hp, mediocre damage, and bad luck, but good defense.")
-            time.sleep(0.2)
+            time.sleep(1.5)
             continue
         else:
             print("Please enter a valid option >:(")
