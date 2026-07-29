@@ -4,6 +4,11 @@ import time
 turns = 0
 battles = 1
 heals = 5
+weapon = 0
+armor = 0
+boss = 0
+old_armor = 0
+old_weapon = 0
 class Character:
     def __init__(self, name, health, damage, defense, luck, info):
         self.name = name
@@ -161,6 +166,11 @@ class Boss(Character):
 def arena_battle(player, enemy):
     global battles
     global turns
+    global boss
+    global armor
+    global weapon
+    global old_armor
+    global old_weapon
     print(f"\n=== {player.name} vs. {enemy.name} ===")
 
     while player.is_alive() and enemy.is_alive():
@@ -187,7 +197,7 @@ def arena_battle(player, enemy):
         elif action == "3":
             player.show_stats()
             continue
-        elif action == "Open sesame":
+        elif action == "open":
             player.max_health += 10000
             player.defense += 10000
             player.luck += 10000
@@ -219,30 +229,56 @@ def arena_battle(player, enemy):
             turns = 0
             replay = input("Do you want to play again? Replaying buffs both you and the enemy. (y/n): ")
             if replay == "y":
-                enemy.max_health += random.randint(5, 8)
-                enemy.defense += random.randint(1, 3)
-                enemy.damage += 1.5
-                player.max_health += 5
-                player.luck += random.randint(1, 2)
-                player.defense += random.randint(1, 3)
-                player.reset_health()
-                enemy.reset_health()
-                battles += 1
-                time.sleep(0.5)
-                enemy = choose_enemy()
-                stats = input("Choose 1 stat to boost. 1 for health, 2 for damage, 3 for luck. ")
-                if stats == "1":
-                    player.health += 5
-                    enemy.health += 2
-                elif stats == "2":
-                    player.damage += 3
-                    enemy.damage += 1
-                elif stats == "3":
-                    player.luck += 3
-                    enemy.luck += 1
+                if boss == 1:
+                    drop = random.randint(1, 2)
+                    if drop == 1:
+                        print("The boss dropped a sword!")
+                        sword_stats = random.randint(100000 + battles * 3, 1000000  + battles * 3)
+                        print(f"it gives {sword_stats} extra attack!")
+                        print(f"Current weapon: {sword_stats}")
+                        pickup = input("Do you pick it up? y/n")
+                        if pickup == "y":
+                            player.damage -= old_weapon
+                            old_weapon = sword_stats
+                            player.damage += sword_stats
+                    if drop == 2:
+                        print("The boss dropped some armor!")
+                        armor_stats = random.randint(10000 + battles * 2, 1000000 + battles * 2)
+                        print(f"it gives {armor_stats} more defense!")
+                        print(f"Current armor: {old_armor} defense")
+                        pickup = input("Do you pick it up? y/n")
+                        if pickup == "y":
+                            player.defense -= old_armor
+                            old_armor = armor_stats
+                            player.defense += armor_stats
+                    battles += 1
+                    enemy = choose_enemy()
                 else:
-                    print("No stat boost for you then >:(")
+                    enemy.max_health += random.randint(5, 8)
+                    enemy.defense += random.randint(1, 3)
+                    enemy.damage += 1.5
+                    player.max_health += 5
+                    player.luck += random.randint(1, 2)
+                    player.defense += random.randint(1, 3)
+                    player.reset_health()
+                    enemy.reset_health()
+                    time.sleep(0.5)
+                    battles += 1
+                    enemy = choose_enemy()
+                    stats = input("Choose 1 stat to boost. 1 for health, 2 for damage, 3 for luck. ")
+                    if stats == "1":
+                        player.health += 5
+                        enemy.health += 2
+                    elif stats == "2":
+                        player.damage += 3
+                        enemy.damage += 1
+                    elif stats == "3":
+                        player.luck += 3
+                        enemy.luck += 1
+                    else:
+                        print("No stat boost for you then >:(")
                 time.sleep(0.5)
+                print(battles)
                 arena_battle(player, enemy)
             if replay == "n":
                 exit()
@@ -299,37 +335,44 @@ def start():
 
 
 def choose_player():
+    global weapon
+    global armor
     while True:
         character = input("1 for average Joe, 2 for guy with a cool staff, 3 for lanky boxer. Press I for info about all of them. ")
 
         if character == "1":
-            return Character(playername, 100, 15, 5, 10, "a normal guy that punches")
+            return Character(playername, 100, 15 + weapon, 5 + armor, 10, "a normal guy that punches")
         elif character == "2":
-            return Priest(playername, 80, 10, 5, 20, "a guy that heals himself better than the average guy")
+            return Priest(playername, 80, 10 + weapon, 5 + armor, 20, "a guy that heals himself better than the average guy")
         elif character == "3":
-            return Boxer(playername, 85, 12.3, 10, 12, "A guy that punches weaker, but can also dodge.")
+            return Boxer(playername, 85, 12.3 + weapon, 10 + armor, 12, "A guy that punches weaker, but can also dodge.")
         elif character == "I" or "i":
             print("Average Joe has almost nothing going for him, other than the fact he punches hard.")
             print("Bad defense and luck, but good damage and overall hp.")
-            time.sleep(0.2)
+            input("Press Enter To Continue")
             print("Guy with a staff can heal himself really well, but lacks damage.")
             print("Bad defense and hp, but really good luck.")
-            time.sleep(0.2)
+            input("Press Enter To Continue")
             print("Lanky boxer cant punch hard because he has boxing gloves on, but he can take quite a few hits.")
             print("mediocre hp, mediocre damage, and bad luck, but good defense.")
-            time.sleep(1.5)
+            input("Press Enter To Continue")
             continue
         else:
             print("Please enter a valid option >:(")
+            continue
 
 
 def choose_enemy():
-    print("testing")
+    global boss
+    # chooses the enemy depending on rounds elapsed
     if battles % 3 == 0:
+        # the % operator basically asks if x is a multiple of y
         print("A big boss is approaching...")
+        boss = 1
         return Boss(f"Guy who hates {playername}", 200 + (battles * 3), 10 + (battles * 2), 3 + battles, 0, "")
     else:
         print("")
+        boss = 0
         return Rogue("Homeless Bum", 70, 10, 3, 20, "")
 
 
