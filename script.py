@@ -196,6 +196,7 @@ def arena_battle(player, enemy):
             print(f"{player.name} healed for {healed} HP!")
         elif action == "3":
             player.show_stats()
+            turns -= 1
             continue
         elif action == "open":
             player.max_health += 10000
@@ -227,61 +228,57 @@ def arena_battle(player, enemy):
             player.reset_health()
             enemy.reset_health()
             turns = 0
-            replay = input("Do you want to play again? Replaying buffs both you and the enemy. (y/n): ")
-            if replay == "y":
-                if boss == 1:
-                    drop = random.randint(1, 2)
-                    if drop == 1:
-                        print("The boss dropped a sword!")
-                        sword_stats = random.randint(100000 + battles * 3, 1000000  + battles * 3)
-                        print(f"it gives {sword_stats} extra attack!")
-                        print(f"Current weapon: {sword_stats}")
-                        pickup = input("Do you pick it up? y/n")
-                        if pickup == "y":
-                            player.damage -= old_weapon
-                            old_weapon = sword_stats
-                            player.damage += sword_stats
-                    if drop == 2:
-                        print("The boss dropped some armor!")
-                        armor_stats = random.randint(10000 + battles * 2, 1000000 + battles * 2)
-                        print(f"it gives {armor_stats} more defense!")
-                        print(f"Current armor: {old_armor} defense")
-                        pickup = input("Do you pick it up? y/n")
-                        if pickup == "y":
-                            player.defense -= old_armor
-                            old_armor = armor_stats
-                            player.defense += armor_stats
-                    battles += 1
-                    enemy = choose_enemy()
-                else:
-                    enemy.max_health += random.randint(5, 8)
-                    enemy.defense += random.randint(1, 3)
-                    enemy.damage += 1.5
-                    player.max_health += 5
-                    player.luck += random.randint(1, 2)
-                    player.defense += random.randint(1, 3)
-                    player.reset_health()
-                    enemy.reset_health()
-                    time.sleep(0.5)
-                    battles += 1
-                    enemy = choose_enemy()
-                    stats = input("Choose 1 stat to boost. 1 for health, 2 for damage, 3 for luck. ")
-                    if stats == "1":
-                        player.health += 5
-                        enemy.health += 2
-                    elif stats == "2":
-                        player.damage += 3
-                        enemy.damage += 1
-                    elif stats == "3":
-                        player.luck += 3
-                        enemy.luck += 1
-                    else:
-                        print("No stat boost for you then >:(")
+            if boss == 1:
+                drop = random.randint(1, 2)
+                if drop == 1:
+                    print("The boss dropped a sword!")
+                    sword_stats = random.randint(1 + battles * 3, 3  + battles * 3)
+                    print(f"it gives {sword_stats} extra attack!")
+                    print(f"Current weapon: {sword_stats}")
+                    pickup = input("Do you pick it up? y/n")
+                    if pickup == "y":
+                        player.damage -= old_weapon
+                        old_weapon = sword_stats
+                        player.damage += sword_stats
+                if drop == 2:
+                    print("The boss dropped some armor!")
+                    armor_stats = random.randint(1 + battles * 2, 3 + battles * 2)
+                    print(f"it gives {armor_stats} more defense!")
+                    print(f"Current armor: {old_armor} defense")
+                    pickup = input("Do you pick it up? y/n")
+                    if pickup == "y":
+                        player.defense -= old_armor
+                        old_armor = armor_stats
+                        player.defense += armor_stats
+                battles += 1
+                enemy = choose_enemy()
+            else:
+                enemy.max_health += random.randint(5, 8)
+                enemy.defense += random.randint(1, 3)
+                enemy.damage += 1.5
+                player.max_health += 5
+                player.luck += random.randint(1, 2)
+                player.defense += random.randint(1, 3)
+                player.reset_health()
+                enemy.reset_health()
                 time.sleep(0.5)
-                print(battles)
-                arena_battle(player, enemy)
-            if replay == "n":
-                exit()
+                battles += 1
+                enemy = choose_enemy()
+                stats = input("Choose 1 stat to boost. 1 for health, 2 for damage, 3 for luck. ")
+                if stats == "1":
+                    player.health += 5
+                    enemy.health += 2
+                elif stats == "2":
+                    player.damage += 3
+                    enemy.damage += 1
+                elif stats == "3":
+                    player.luck += 3
+                    enemy.luck += 1
+                else:
+                    print("No stat boost for you then >:(")
+            time.sleep(0.5)
+            print(battles)
+            arena_battle(player, enemy)
 
 
 
