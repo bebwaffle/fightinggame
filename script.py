@@ -20,14 +20,14 @@ class Character:
         self.info = info
 
     def take_damage(self, damage):
-        damage_taken = max(0, damage - self.defense)
-        if damage_taken < 0:
-            damage_taken = 3
+        damage_taken = max(0, damage  / self.defense)
+        round(damage_taken)
         self.health -= damage_taken
         return damage_taken
 
     def true_damage(self, damage):
-        damage_taken = max(0, damage)
+        damage_taken = max(0, damage / (self.defense / 1.5))
+        round(damage_taken)
         self.health -= damage_taken
         return damage_taken
 
@@ -132,7 +132,6 @@ class Boxer(Character):
         return target.take_damage(int(damage))
 
     def take_damage(self, damage):
-        print("works!")
         dodge = random.randint(1, 50) <= self.defense
         if dodge:
             print("**Dodged!**")
@@ -140,20 +139,18 @@ class Boxer(Character):
             self.health -= damage_taken
             return damage_taken
         else:
-            damage_taken = max(0, damage - self.defense) * 1.1
-            if damage_taken < 0:
-                damage_taken = 3
+            damage_taken = max(5, damage / self.defense) * 1.2
+            round(damage_taken)
             self.health -= damage_taken
             return damage_taken
     def true_damage(self, damage):
         dodge = random.randint(1, 50) <= self.defense
         if dodge:
-            print("**Partially Dodged!**")
-            damage_taken = max(0, damage - self.defense) * 0.5
+            damage_taken = max(0, damage / self.defense) * 0.5
             self.health -= damage_taken
             return damage_taken
         else:
-            damage_taken = max(0, damage - self.defense) * 1.1
+            damage_taken = max(0, damage / self.defense) * 1.1
             self.health -= damage_taken
             return damage_taken
 
@@ -208,6 +205,7 @@ def arena_battle(player, enemy):
             player.luck += 10000
             player.damage += 10000
             player.health += 10000
+            turns -= 1
             continue
         else:
             print(" ")
@@ -236,7 +234,7 @@ def arena_battle(player, enemy):
                 drop = random.randint(1, 2)
                 if drop == 1:
                     print("The boss dropped a sword!")
-                    sword_stats = random.randint(1 + battles * 3, 3  + battles * 3)
+                    sword_stats = random.randint(10 + battles * 3, 20  + battles * 3)
                     print(f"it gives {sword_stats} extra attack!")
                     print(f"Current weapon: {sword_stats}")
                     pickup = input("Do you pick it up? y/n")
@@ -246,7 +244,7 @@ def arena_battle(player, enemy):
                         player.damage += sword_stats
                 if drop == 2:
                     print("The boss dropped some armor!")
-                    armor_stats = random.randint(1 + battles * 2, 3 + battles * 2)
+                    armor_stats = random.randint(1 + battles * 1.5, 5 + battles * 1.5)
                     print(f"it gives {armor_stats} more defense!")
                     print(f"Current armor: {old_armor} defense")
                     pickup = input("Do you pick it up? y/n")
@@ -329,11 +327,11 @@ def choose_player():
         character = input("1 for average Joe, 2 for guy with a cool staff, 3 for lanky boxer. Press i for info about all of them. ")
 
         if character == "1":
-            return Character(playername, 100, 15 + weapon, 8 + armor, 10, "a normal guy that punches")
+            return Character(playername, 100, 100 + weapon, 6 + armor, 10, "a normal guy that punches")
         elif character == "2":
-            return Priest(playername, 80, 10 + weapon, 8 + armor, 20, "a guy that heals himself better than the average guy")
+            return Priest(playername, 80, 80 + weapon, 7 + armor, 20, "a guy that heals himself better than the average guy")
         elif character == "3":
-            return Boxer(playername, 85, 12.3 + weapon, 10 + armor, 12, "A guy that punches weaker, but can also dodge.")
+            return Boxer(playername, 85, 75 + weapon, 8 + armor, 12, "A guy that punches weaker, but can also dodge.")
         elif character == "i":
             print("Average Joe has almost nothing going for him, other than the fact he punches hard.")
             print("Bad defense and luck, but good damage and overall hp.")
@@ -357,11 +355,11 @@ def choose_enemy():
         # the % operator basically asks if x is a multiple of y
         print("A big boss is approaching...")
         boss = 1
-        return Boss(f"Guy who hates {playername}", 200 + (battles * 3), 20 + (battles * 2), 3 + battles, 0, "")
+        return Boss(f"Guy who hates {playername}", 200 + (battles * 3), 120 + (battles * 2), 10 + round(battles / 2), 0, "")
     else:
         print("")
         boss = 0
-        return Rogue("Homeless Bum", 70, 15, 3, 20, "")
+        return Rogue("Homeless Bum", 70, 77, 8, 8, "")
 
 
 playername = start()
